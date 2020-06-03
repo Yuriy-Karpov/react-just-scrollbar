@@ -16,15 +16,16 @@
     "noUnusedLocals": true,
     "module": "commonjs",
     "moduleResolution": "node",
-    "outDir": "./lib",
+    "outDir": "./dist",
     "sourceMap": true,
     "suppressImplicitAnyIndexErrors": true,
     "target": "ES6",
-    "jsx": "react"
+    "jsx": "react",
+    "allowSyntheticDefaultImports": true
   },
   "exclude": [
     "./node_modules",
-    "./lib"
+    "./dist"
   ],
   "include": [
     "./src/**/*.ts",
