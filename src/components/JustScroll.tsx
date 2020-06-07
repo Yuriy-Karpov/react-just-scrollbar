@@ -1,6 +1,5 @@
 import * as React from 'react';
 
-import '../styles.css';
 import {useScrollPosition} from '../hooks/useScrollPosition';
 import {useScrollRect} from '../hooks/useScrollRect';
 import {useMouseThumb} from '../hooks/useMouseThumb';
