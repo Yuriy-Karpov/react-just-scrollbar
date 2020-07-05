@@ -8,6 +8,7 @@ const react_1 = require("react");
  * whether the window is defined.
  */
 const isBrowser = typeof window !== `undefined`;
+exports.useIsomorphicLayoutEffect = isBrowser ? react_1.useLayoutEffect : react_1.useEffect;
 function getScrollPosition(element) {
     if (!isBrowser) {
         return {
@@ -33,7 +34,7 @@ function useScrollPosition(effect, deps, { element = null, wait = 0 }) {
         position.current = currPos;
         throttleTimeout.current = null;
     }, [effect, element]);
-    react_1.useLayoutEffect(() => {
+    exports.useIsomorphicLayoutEffect(() => {
         const handleScroll = () => {
             if (wait) {
                 if (throttleTimeout.current === null) {

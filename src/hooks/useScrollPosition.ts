@@ -1,4 +1,4 @@
-import {useRef, useLayoutEffect, useCallback} from 'react';
+import {useRef, useLayoutEffect, useCallback, useEffect} from 'react';
 import {EffectType, ElementType, OptionalType} from '../utils/types';
 
 /**
@@ -8,6 +8,8 @@ import {EffectType, ElementType, OptionalType} from '../utils/types';
  * whether the window is defined.
  */
 const isBrowser = typeof window !== `undefined`;
+
+export const useIsomorphicLayoutEffect = isBrowser ? useLayoutEffect : useEffect;
 
 function getScrollPosition(element: ElementType) {
     if (!isBrowser) {
@@ -38,7 +40,7 @@ export function useScrollPosition(effect: EffectType, deps: any, {element = null
         throttleTimeout.current = null;
     }, [effect, element]);
 
-    useLayoutEffect(() => {
+    useIsomorphicLayoutEffect(() => {
         const handleScroll = () => {
             if (wait) {
                 if (throttleTimeout.current === null) {

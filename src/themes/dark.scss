@@ -1,0 +1,16 @@
+.justScroll {
+  .justScroll-bar--track::before {
+    background-color: rgba(3, 3, 3, 0.2);
+  }
+  .justScroll-bar--thumb {
+    background-color: rgba(3, 3, 3, 0.6);
+  }
+
+  .justScroll-bar {
+    width: 6px;
+    &:hover,
+    &:active{
+      width: 10px;
+    }
+  }
+}

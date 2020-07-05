@@ -3,15 +3,23 @@ import * as React from 'react';
 import {useScrollPosition} from '../hooks/useScrollPosition';
 import {useScrollRect} from '../hooks/useScrollRect';
 import {useMouseThumb} from '../hooks/useMouseThumb';
+import {JustScrollBar} from './JustScrollBar';
 
 const DEFAULT_OFFSET = 40;
 
 export interface IJustScroll {
     children: React.ReactNode,
-    margin: number
+    margin?: number,
+    updateDeps?: any[];
 }
 
-export const JustScroll: React.FC<IJustScroll> = ({children, margin = 0}) => {
+export const JustScroll: React.FC<IJustScroll> = (
+    {
+        children,
+        margin = 0,
+        updateDeps = [],
+    }) => {
+
     const thumbYElement = React.useRef<HTMLDivElement | null>(null);
     const refWrap = React.useRef<HTMLDivElement | null>(null);
     const refContent = React.useRef<HTMLDivElement | null>(null);
@@ -33,7 +41,7 @@ export const JustScroll: React.FC<IJustScroll> = ({children, margin = 0}) => {
                 thumbYElement.current.style.transform = `translateY(${thumbOffsetY}px)`;
             });
         }
-    }, [refContent, thumbYElement]);
+    }, [refContent, thumbYElement, updateDeps]);
 
 
     /**
@@ -56,7 +64,6 @@ export const JustScroll: React.FC<IJustScroll> = ({children, margin = 0}) => {
     const {handlerMouseDown} = useMouseThumb(rectArea, wrapHeight, clientHeight);
 
     const handlerClickBar = React.useCallback((event: React.MouseEvent<HTMLElement>) => {
-        console.log('CLICK')
         // тут реализация клика по бару
     }, []);
 
@@ -77,7 +84,7 @@ export const JustScroll: React.FC<IJustScroll> = ({children, margin = 0}) => {
             rectArea.style.marginRight = `-${padding}px`;
             rectArea.style.marginBottom = `-${padding}px`;
         }
-    }, [refWrap, refContent, margin, rectArea]);
+    }, [refWrap, refContent, margin, rectArea, updateDeps]);
 
     React.useEffect(() => {
         if (refWrap.current !== null && refContent.current !== null) {
@@ -87,20 +94,17 @@ export const JustScroll: React.FC<IJustScroll> = ({children, margin = 0}) => {
                 refBar.current.style.display = 'block';
             }
         }
-    }, [children]);
+    }, [children, updateDeps]);
 
     return (
         <div ref={refWrap} className="justScroll">
             <div ref={refArea} className="justScroll-area">
-                <div ref={refBar} className="justScroll-bar" onClick={handlerClickBar}>
-                    <div className="justScroll-bar--track">
-                        <div
-                            ref={thumbYElement}
-                            className="justScroll-bar--thumb"
-                            onMouseDown={handlerMouseDown}
-                        />
-                    </div>
-                </div>
+                <JustScrollBar
+                    refBar={refBar}
+                    handlerClickBar={handlerClickBar}
+                    thumbYElement={thumbYElement}
+                    handlerMouseDown={handlerMouseDown}
+                />
                 <div ref={refContent} className="justScroll-data">
                     {children}
                 </div>
