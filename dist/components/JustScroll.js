@@ -5,6 +5,7 @@ const useScrollPosition_1 = require("../hooks/useScrollPosition");
 const useScrollRect_1 = require("../hooks/useScrollRect");
 const useMouseThumb_1 = require("../hooks/useMouseThumb");
 const JustScrollBar_1 = require("./JustScrollBar");
+const throttle_1 = require("../utils/throttle");
 const DEFAULT_OFFSET = 40;
 exports.JustScroll = ({ children, margin = 0, updateDeps = [], }) => {
     const thumbYElement = React.useRef(null);
@@ -15,7 +16,7 @@ exports.JustScroll = ({ children, margin = 0, updateDeps = [], }) => {
     /**
      * handlerScroll for scroll effect
      */
-    const handlerScroll = React.useCallback(({ prevPos, currPos }) => {
+    const handlerScroll = React.useCallback(({ _prevPos, currPos }) => {
         if (thumbYElement.current !== null) {
             const thumbOffsetY = Math.round((currPos.y * refWrap.current.clientHeight) /
                 refContent.current.clientHeight);
@@ -37,7 +38,7 @@ exports.JustScroll = ({ children, margin = 0, updateDeps = [], }) => {
      * handler mouse thumb
      */
     const { handlerMouseDown } = useMouseThumb_1.useMouseThumb(rectArea, wrapHeight, clientHeight);
-    const handlerClickBar = React.useCallback((event) => {
+    const handlerClickBar = React.useCallback((_event) => {
         // тут реализация клика по бару
     }, []);
     React.useEffect(() => {
@@ -50,13 +51,13 @@ exports.JustScroll = ({ children, margin = 0, updateDeps = [], }) => {
             const widthScrollbar = rectArea.offsetWidth - rectArea.clientWidth;
             const padding = DEFAULT_OFFSET + widthScrollbar;
             // we calculate the height of the custom scroll
-            const relation = Math.round(wrapHeight / (contentHeight / wrapHeight)) + margin * 2;
+            const relation = Math.round(wrapHeight / ((contentHeight - DEFAULT_OFFSET * 2) / wrapHeight)) + margin * 2;
             thumbYElement.current.style.height = `${relation}px`;
             rectArea.style.marginRight = `-${padding}px`;
             rectArea.style.marginBottom = `-${padding}px`;
         }
     }, [refWrap, refContent, margin, rectArea, updateDeps]);
-    React.useEffect(() => {
+    function handleResizeShowBar() {
         if (refWrap.current !== null && refContent.current !== null) {
             if (refWrap.current.clientHeight > refContent.current.clientHeight) {
                 refBar.current.style.display = 'none';
@@ -65,7 +66,12 @@ exports.JustScroll = ({ children, margin = 0, updateDeps = [], }) => {
                 refBar.current.style.display = 'block';
             }
         }
-    }, [children, updateDeps]);
+    }
+    React.useEffect(() => {
+        window.addEventListener('resize', () => throttle_1.throttle(handleResizeShowBar, 300));
+        return () => window.removeEventListener('resize', handleResizeShowBar);
+    }, []);
+    handleResizeShowBar();
     return (React.createElement("div", { ref: refWrap, className: "justScroll" },
         React.createElement("div", { ref: refArea, className: "justScroll-area" },
             React.createElement(JustScrollBar_1.JustScrollBar, { refBar: refBar, handlerClickBar: handlerClickBar, thumbYElement: thumbYElement, handlerMouseDown: handlerMouseDown }),

@@ -4,6 +4,7 @@ import {useScrollPosition} from '../hooks/useScrollPosition';
 import {useScrollRect} from '../hooks/useScrollRect';
 import {useMouseThumb} from '../hooks/useMouseThumb';
 import {JustScrollBar} from './JustScrollBar';
+import {throttle} from '../utils/throttle';
 
 const DEFAULT_OFFSET = 40;
 
@@ -30,7 +31,7 @@ export const JustScroll: React.FC<IJustScroll> = (
     /**
      * handlerScroll for scroll effect
      */
-    const handlerScroll = React.useCallback(({prevPos, currPos},) => {
+    const handlerScroll = React.useCallback(({_prevPos, currPos},) => {
         if (thumbYElement.current !== null) {
             const thumbOffsetY = Math.round(
                 (currPos.y * refWrap.current.clientHeight) /
@@ -63,7 +64,7 @@ export const JustScroll: React.FC<IJustScroll> = (
      */
     const {handlerMouseDown} = useMouseThumb(rectArea, wrapHeight, clientHeight);
 
-    const handlerClickBar = React.useCallback((event: React.MouseEvent<HTMLElement>) => {
+    const handlerClickBar = React.useCallback((_event: React.MouseEvent<HTMLElement>) => {
         // тут реализация клика по бару
     }, []);
 
@@ -78,15 +79,15 @@ export const JustScroll: React.FC<IJustScroll> = (
             const padding = DEFAULT_OFFSET + widthScrollbar;
             // we calculate the height of the custom scroll
             const relation =
-                Math.round(wrapHeight / (contentHeight / wrapHeight)) + margin * 2;
-
+                Math.round(wrapHeight / ((contentHeight - DEFAULT_OFFSET *2) / wrapHeight)) + margin * 2;
             thumbYElement.current.style.height = `${relation}px`;
             rectArea.style.marginRight = `-${padding}px`;
             rectArea.style.marginBottom = `-${padding}px`;
         }
     }, [refWrap, refContent, margin, rectArea, updateDeps]);
 
-    React.useEffect(() => {
+
+    function handleResizeShowBar() {
         if (refWrap.current !== null && refContent.current !== null) {
             if (refWrap.current.clientHeight > refContent.current.clientHeight) {
                 refBar.current.style.display = 'none';
@@ -94,7 +95,13 @@ export const JustScroll: React.FC<IJustScroll> = (
                 refBar.current.style.display = 'block';
             }
         }
-    }, [children, updateDeps]);
+    }
+
+    React.useEffect(() => {
+        window.addEventListener('resize', () => throttle(handleResizeShowBar, 300));
+        return () => window.removeEventListener('resize', handleResizeShowBar);
+    }, []);
+    handleResizeShowBar();
 
     return (
         <div ref={refWrap} className="justScroll">
