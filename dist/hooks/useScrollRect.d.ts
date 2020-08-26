@@ -1,1 +1,1 @@
-export declare function useScrollRect(): any[];
+export declare function useScrollRect(): {};

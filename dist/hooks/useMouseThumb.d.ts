@@ -1,3 +1,3 @@
-export declare const useMouseThumb: (rectArea: HTMLDivElement, wrapHeight: number, contentHeight: number) => {
-    handlerMouseDown: (event: any) => void;
+export declare const useMouseThumb: (rectArea: any, wrapHeight: number, contentHeight: number) => {
+    handlerMouseDown: any;
 };
